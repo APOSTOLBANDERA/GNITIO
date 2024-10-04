@@ -3,26 +3,33 @@ package com.example.gnitio.service;
 import com.example.gnitio.dto.LoginUserDto;
 import com.example.gnitio.dto.RegistrationUserDto;
 import com.example.gnitio.entity.UserEntity;
+import com.example.gnitio.repository.RoleRepo;
 import com.example.gnitio.repository.UserRepo;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.gnitio.entity.RoleEntity;
+
+import java.util.Collections;
 
 @Service
 public class AuthenticationService {
     private final UserRepo userRepository;
 
+    private final RoleRepo roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationService(
             UserRepo userRepository,
+            RoleRepo roleRepository,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder
     ) {
         this.authenticationManager = authenticationManager;
+        this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -32,6 +39,12 @@ public class AuthenticationService {
         user.setUsername(input.getUsername());
         user.setPassword(input.getPassword());
         user.setEmail(input.getEmail());
+
+        String roleName = input.getRole() != null && input.getRole().equals("admin") ? "ROLE_ADMIN" : "ROLE_USER";
+        RoleEntity role = roleRepository.findByName(roleName).orElseThrow(() -> new RuntimeException("Role not found"));
+
+        user.setRoles(Collections.singleton(role));
+
 
         return userRepository.save(user);
     }
