@@ -1,6 +1,8 @@
 package com.example.gnitio.entity;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.processing.Generated;
 import java.util.Collection;
@@ -9,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -34,13 +36,14 @@ public class UserEntity {
     )
     private Collection<RoleEntity> roles;
 
-    protected UserEntity(){
+    public UserEntity(){
 
     }
 
-    public UserEntity(String username, String password){
+    public UserEntity(String username, String password, String email){
         this.username = username;
         this.password = password;
+        this.email = email;
     }
     @Override
     public String toString() {
@@ -57,6 +60,31 @@ public class UserEntity {
 
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 
     public String getPassword() {
@@ -89,5 +117,13 @@ public class UserEntity {
 
     public void setRoles(Collection<RoleEntity> roles) {
         this.roles = roles;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -9,12 +9,14 @@ public class User {
     private Long id;
     private String username;
     private List<ToDo> toDos;
+    private String email;
 
     public static User toModel(UserEntity entity){
         User model = new User();
         model.setId(entity.getId());
         model.setUsername(entity.getUsername());
         model.setToDos(entity.getTodos().stream().map(ToDo::toModel).collect(Collectors.toList()));
+        model.setEmail(entity.getEmail());
         return model;
     }
 
@@ -44,5 +46,13 @@ public class User {
 
     public void setToDos(List<ToDo> toDos) {
         this.toDos = toDos;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
