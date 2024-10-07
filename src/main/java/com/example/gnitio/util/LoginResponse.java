@@ -5,8 +5,16 @@ public class LoginResponse {
 
     private long expiresIn;
 
+    public LoginResponse(String token, long expiresIn){
+        this.token = token;
+        this.expiresIn = expiresIn;
+    }
+    public LoginResponse(){
+
+    }
+
     public String getToken() {
-        return token;
+        return this.token;
     }
 
     public void setToken(String token) {
@@ -14,7 +22,7 @@ public class LoginResponse {
     }
 
     public long getExpiresIn() {
-        return expiresIn;
+        return this.expiresIn;
     }
 
     public void setExpiresIn(long expiresIn) {

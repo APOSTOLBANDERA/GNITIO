@@ -10,36 +10,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/users", method = {RequestMethod.GET, RequestMethod.POST})
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping()
-    public ResponseEntity registration(@RequestBody UserEntity user){
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserEntity> getOneUser(@PathVariable Long id){
         try {
-            userService.createNewUser(user);
-            return ResponseEntity.ok("USER SAVED");
-        }
-        catch (UserAlreadyExistException ex){
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }
-        catch (Exception ex){
-            return ResponseEntity.badRequest().body("ERROR");
-        }
-
-    }
-
-    @GetMapping("/")
-
-    public ResponseEntity getOneUser(@RequestParam Long id){
-        try {
-            return ResponseEntity.ok(userService.getOne(id));
-        }catch (UserNotFoundException ex){
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        }catch (Exception ex){
-            return ResponseEntity.badRequest().body("ERROR");
+            UserEntity user = userService.getOne(id);
+            return ResponseEntity.ok(user);
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
     @DeleteMapping("/{id}")

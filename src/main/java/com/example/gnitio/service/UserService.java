@@ -53,12 +53,8 @@ public class UserService implements UserDetailsService {
     }
 
     public UserEntity getOne(Long id) throws UserNotFoundException {
-        UserEntity user = userRepo.findById(id).get();
-        if(user == null){
-            throw new UserNotFoundException("USER IS NOT FOUND");
-
-        }
-        return user;
+        return userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User с ID " + id + " не найден"));
     }
 
     public Long delete(Long id){
