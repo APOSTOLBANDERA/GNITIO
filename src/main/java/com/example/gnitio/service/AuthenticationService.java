@@ -15,24 +15,14 @@ import java.util.Collections;
 
 @Service
 public class AuthenticationService {
-    private final UserRepo userRepository;
+    private UserRepo userRepository;
 
-    private final RoleRepo roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private RoleRepo roleRepository;
+    private PasswordEncoder passwordEncoder;
 
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
-    public AuthenticationService(
-            UserRepo userRepository,
-            RoleRepo roleRepository,
-            AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+
 
     public UserEntity signup(RegistrationUserDto input) {
         UserEntity user = new UserEntity();

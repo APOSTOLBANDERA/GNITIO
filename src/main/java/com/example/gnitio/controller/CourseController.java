@@ -13,12 +13,8 @@ import java.util.List;
  // Базовый путь для всех операций с курсами
 public class CourseController {
 
-
-    private final CourseService courseService;
-
-    public CourseController(CourseService courseService) {
-        this.courseService = courseService;
-    }
+    @Autowired
+    private CourseService courseService;
 
 
     @PostMapping

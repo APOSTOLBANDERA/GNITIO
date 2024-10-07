@@ -2,6 +2,7 @@ package com.example.gnitio.service;
 
 import com.example.gnitio.entity.CourseEntity;
 import com.example.gnitio.repository.CourseRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -11,11 +12,10 @@ import java.util.Optional;
 @Service
 public class CourseService {
 
-    private final CourseRepo courseRepo;
+    @Autowired
+    private CourseRepo courseRepo;
 
-    public CourseService(CourseRepo courseRepo) {
-        this.courseRepo = courseRepo;
-    }
+
 
     // 1. Создание нового курса
     public CourseEntity createCourse(@RequestBody CourseEntity course) {
