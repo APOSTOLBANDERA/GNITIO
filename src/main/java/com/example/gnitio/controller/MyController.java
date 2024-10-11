@@ -1,5 +1,7 @@
 package com.example.gnitio.controller;
 
+import com.example.gnitio.entity.UserEntity;
+import com.example.gnitio.service.UserService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -39,4 +41,6 @@ public class MyController {
         // Возвращаем успешный ответ
         return ResponseEntity.ok(responseMessage);
     }
+
+
 }

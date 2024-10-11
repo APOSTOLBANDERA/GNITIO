@@ -4,6 +4,8 @@ import com.example.gnitio.service.UserService;
 import com.example.gnitio.util.JwtTokenUtils;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,10 +37,12 @@ public class JwtRequestsFilter extends OncePerRequestFilter {
 
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             jwtToken = authorizationHeader.substring(7);
-            try{
+            try {
                 username = jwtTokenUtils.getUsernameFromToken(jwtToken);
-            } catch (Exception ex){
-                logger.debug("Jwt token error " + jwtToken);
+            } catch (ExpiredJwtException e) {
+                logger.debug("JWT token expired");
+            } catch (SignatureException e) {
+                logger.debug("JWT token signature error" + e.getMessage());
             }
         }
 

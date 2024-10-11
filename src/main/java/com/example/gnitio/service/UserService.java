@@ -45,10 +45,10 @@ public class UserService implements UserDetailsService {
     }
 
     public void createNewUser(UserEntity user) throws UserAlreadyExistException {
-        if(userRepo.findByUsername(user.getUsername()) != null){
-            throw  new UserAlreadyExistException("USER WITH THIS USERNAME HAS BEEN SAVED");
-        }
-        user.setRoles(List.of(roleRepository.findByName("ROLE_USER").get()));
+//        if(userRepo.findByUsername(user.getUsername()) != null){
+//            throw  new UserAlreadyExistException("USER WITH THIS USERNAME HAS BEEN SAVED");
+//        }
+        //user.setRoles(List.of(roleRepository.findByName("ROLE_USER").get()));
         userRepo.save(user);
     }
 

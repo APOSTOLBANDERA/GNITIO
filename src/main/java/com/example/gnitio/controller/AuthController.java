@@ -38,18 +38,27 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> entering(@RequestBody LoginUserDto loginUserDto) {
+
         System.out.println("ajajaja");
         this.logger.info("Mapping login start work");
-        UserEntity authenticatedUser = authenticationService.authenticate(loginUserDto);
-        this.logger.info("After authentication");
+        try {
+            UserEntity authenticatedUser = authenticationService.authenticate(loginUserDto);
+            this.logger.info("After authentication");
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+
+            LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+            this.logger.info("Mapping login start work");
+
+            return ResponseEntity.ok(loginResponse);
+        } catch (Exception ex){
+            this.logger.error(ex.getMessage());
+        }
+        return null;
 
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-        this.logger.info("Mapping login start work");
 
-        return ResponseEntity.ok(loginResponse);
+
     }
 
     @PostMapping("/signup")

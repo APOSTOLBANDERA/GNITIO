@@ -1,6 +1,7 @@
 package com.example.gnitio.util;
 
 
+import com.example.gnitio.controller.UserController;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.crypto.codec.Hex;
 
@@ -19,103 +20,100 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
+
+
 
 @Component
 public class JwtTokenUtils {
-    private final Key secret;
-    private final long lifeTime;
+
+    private final Key secretKey;
+    private final long jwtLifetime;
 
     Logger logger = LoggerFactory.getLogger(JwtTokenUtils.class);
 
     public JwtTokenUtils(
-            @Value("3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b") String secret,
-            @Value("PT3000m") String lifeTime
-    ){
-        if (secret == null || secret.isEmpty()){
-            throw new IllegalArgumentException("JWT key is empty");
-
+            @Value("${security.jwt.secret-key}") String secret,
+            @Value("PT30000000m") String jwtLifetime) {
+        // Проверяем, что ключ и время жизни не пустые
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalArgumentException("JWT secret key must not be empty");
         }
-        if(lifeTime == null || lifeTime.isEmpty()){
-            throw new IllegalArgumentException("Jwt lifeTime is empty");
+        if (jwtLifetime == null || jwtLifetime.isEmpty()) {
+            throw new IllegalArgumentException("JWT lifetime must not be empty");
         }
-
-        this.secret = Keys.hmacShaKeyFor(secret.getBytes());
-        this.lifeTime = Duration.parse(lifeTime).toMillis();
+        logger.info(" alaalx " + secret);
+        // Создаем ключ из строки секрета
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        // Парсим время жизни токена
+        this.jwtLifetime = Duration.parse(jwtLifetime).toMillis();
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(UserDetails userDetails) {
         Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
         claims.put("roles", userDetails.getAuthorities());
 
-        Date issueDate = new Date(System.currentTimeMillis());
-        Date expirationDate = new Date(issueDate.getTime() + lifeTime);
+        Date issuedDate = new Date(System.currentTimeMillis());
+        Date expirationDate = new Date(issuedDate.getTime() + jwtLifetime);
 
-        String jwt = Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(issueDate)
+                .setIssuedAt(issuedDate)
                 .setExpiration(expirationDate)
-                .signWith(secret, SignatureAlgorithm.HS256)
+                .signWith(secretKey)                    // Указываем ключ для подписи
                 .compact();
-        logger.info(jwt);
-        return jwt;
+    }
+
+    public String generateRefreshToken(HashMap<String, Object> claims, UserDetails userDetails) {
+        Date issuedDate = new Date(System.currentTimeMillis());
+        Date expirationDate = new Date(issuedDate.getTime() + jwtLifetime);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(issuedDate)
+                .setExpiration(expirationDate)
+                .signWith(secretKey)                    // Указываем ключ для подписи
+                .compact();
+    }
+
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)               // Устанавливаем ключ для проверки подписи
+                .build()
+                .parseClaimsJws(token)                  // Парсим токен и проверяем подпись
+                .getBody();                             // Извлекаем клеймы из токена
     }
 
     public String getUsernameFromToken(String token) {
-        Claims claims = extractAllClaims(token);
-        if (claims != null) {
-            logger.info("Extracted claims: " + claims);
-            return claims.getSubject();
-        } else {
-            logger.error("Failed to extract username from token: " + token);
-            return null;
-        }
-    }
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-    private Claims extractAllClaims(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(secret)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            logger.error("Failed to extract claims from token: " + token, e);
-            return null;
-        }
+        Claims claims = getAllClaimsFromToken(token);
+        logger.info("III5252" + claims.toString());
+        return claims.getSubject();
     }
 
-
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("roles", List.class);     // Извлекаем роли из токена
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        try {
-            // Извлекаем имя пользователя из токена
-            String username = getUsernameFromToken(token);
-            // Проверяем, совпадает ли имя пользователя из токена с данными пользователя
-            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        } catch (ExpiredJwtException e) {
-            logger.debug("JWT token expired");
-            return false;
-        }
+        String username = getUsernameFromToken(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    private boolean isTokenExpired(String token) {
+        Date expirationDate = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+        return expirationDate.before(new Date());
+    }
 }

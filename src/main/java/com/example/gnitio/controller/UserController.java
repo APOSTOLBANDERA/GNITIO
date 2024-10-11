@@ -5,8 +5,11 @@ import com.example.gnitio.exception.UserAlreadyExistException;
 import com.example.gnitio.exception.UserNotFoundException;
 import com.example.gnitio.repository.UserRepo;
 import com.example.gnitio.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +19,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/{id}")
     public ResponseEntity<UserEntity> getOneUser(@PathVariable Long id){
@@ -35,6 +41,13 @@ public class UserController {
         }catch (Exception ex){
             return ResponseEntity.badRequest().body("ERROR");
         }
+    }
+
+    @GetMapping("/createUser")
+    public void CreateSomething() throws UserAlreadyExistException{
+        UserEntity userEntity = new UserEntity("DENIS3", passwordEncoder.encode("DENIS3"), "DENIS3@gmail.com");
+        userService.createNewUser(userEntity);
+        logger.info("LOX YA");
     }
 
 

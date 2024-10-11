@@ -1,18 +1,17 @@
 package com.example.gnitio.dto;
 
 public class LoginUserDto {
-    private String email;
+    private String username;
 
     private String password;
 
 
-
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.username = username;
     }
 
     public String getPassword() {
