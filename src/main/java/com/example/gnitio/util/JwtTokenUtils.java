@@ -24,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,86 +35,66 @@ import java.util.function.Function;
 @Component
 public class JwtTokenUtils {
 
-    private final Key secretKey;
-    private final long jwtLifetime;
+    // Hardcoded secret key for signing the JWT
+    private String SECRET_KEY;
 
-    Logger logger = LoggerFactory.getLogger(JwtTokenUtils.class);
-
-    public JwtTokenUtils(
-            @Value("${security.jwt.secret-key}") String secret,
-            @Value("PT30000000m") String jwtLifetime) {
-        // Проверяем, что ключ и время жизни не пустые
-        if (secret == null || secret.isEmpty()) {
-            throw new IllegalArgumentException("JWT secret key must not be empty");
-        }
-        if (jwtLifetime == null || jwtLifetime.isEmpty()) {
-            throw new IllegalArgumentException("JWT lifetime must not be empty");
-        }
-        logger.info(" alaalx " + secret);
-        // Создаем ключ из строки секрета
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-        // Парсим время жизни токена
-        this.jwtLifetime = Duration.parse(jwtLifetime).toMillis();
+    public JwtTokenUtils(@Value("${security.jwt.secret-key}") String secret){
+        SECRET_KEY = secret;
     }
 
+    // Method to extract username from JWT token
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    // Method to extract all claims from a JWT token
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // Method to extract a single claim using a resolver function
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    // Method to generate a token for a UserDetails object
     public String generateToken(UserDetails userDetails) {
+
         Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
         claims.put("roles", userDetails.getAuthorities());
 
         Date issuedDate = new Date(System.currentTimeMillis());
-        Date expirationDate = new Date(issuedDate.getTime() + jwtLifetime);
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(issuedDate)
-                .setExpiration(expirationDate)
-                .signWith(secretKey)                    // Указываем ключ для подписи
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10-hour expiration
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
-    public String generateRefreshToken(HashMap<String, Object> claims, UserDetails userDetails) {
-        Date issuedDate = new Date(System.currentTimeMillis());
-        Date expirationDate = new Date(issuedDate.getTime() + jwtLifetime);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(issuedDate)
-                .setExpiration(expirationDate)
-                .signWith(secretKey)                    // Указываем ключ для подписи
-                .compact();
-    }
-
-    public Claims getAllClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)               // Устанавливаем ключ для проверки подписи
-                .build()
-                .parseClaimsJws(token)                  // Парсим токен и проверяем подпись
-                .getBody();                             // Извлекаем клеймы из токена
-    }
-
-    public String getUsernameFromToken(String token) {
-        Claims claims = getAllClaimsFromToken(token);
-        logger.info("III5252" + claims.toString());
-        return claims.getSubject();
-    }
-
-    public List<String> getRolesFromToken(String token) {
-        Claims claims = getAllClaimsFromToken(token);
-        return claims.get("roles", List.class);     // Извлекаем роли из токена
-    }
-
-    public boolean validateToken(String token, UserDetails userDetails) {
-        String username = getUsernameFromToken(token);
+    // Method to validate token
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
-        Date expirationDate = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return expirationDate.before(new Date());
+    // Check if the token is expired
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    // Extract expiration date from the token
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    // Method to get the username directly from the token
+    public String getUsernameFromToken(String token) {
+        return extractUsername(token);
     }
 }
