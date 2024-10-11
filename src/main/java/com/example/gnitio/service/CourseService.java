@@ -17,23 +17,23 @@ public class CourseService {
 
 
 
-    // 1. Создание нового курса
+
     public CourseEntity createCourse(@RequestBody CourseEntity course) {
         return courseRepo.save(course); // Сохраняем курс в базу данных и возвращаем его
     }
 
-    // 2. Получение курса по ID
+
     public CourseEntity getCourseById(Long id) {
         return courseRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Курс с ID " + id + " не найден")); // Если не найдено, выбрасываем исключение
     }
 
-    // 3. Получение списка всех курсов
+
     public List<CourseEntity> getAllCourses() {
         return (List<CourseEntity>) courseRepo.findAll(); // Возвращаем все курсы
     }
 
-    // 4. Обновление курса
+
     public CourseEntity updateCourse(Long id, CourseEntity courseDetails) {
         CourseEntity course = getCourseById(id); // Ищем курс по ID
 
@@ -44,12 +44,12 @@ public class CourseService {
         course.setDuration(courseDetails.getDuration());
         course.setFormat(courseDetails.getFormat());
 
-        return courseRepo.save(course); // Сохраняем обновлённый курс в базу
+        return courseRepo.save(course);
     }
 
-    // 5. Удаление курса
+
     public void deleteCourse(Long id) {
-        CourseEntity course = getCourseById(id); // Ищем курс по ID
-        courseRepo.delete(course); // Удаляем курс
+        CourseEntity course = getCourseById(id);
+        courseRepo.delete(course);
     }
 }

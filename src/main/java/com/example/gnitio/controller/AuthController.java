@@ -25,12 +25,32 @@ public class AuthController {
 
     private JwtService jwtService;
 
-    @Autowired
     private AuthenticationService authenticationService;
 
     Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 
+    @Autowired
+    public AuthController(JwtService jwtService, AuthenticationService authenticationService){
+        this.jwtService = jwtService;
+        this.authenticationService = authenticationService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> entering(@RequestBody LoginUserDto loginUserDto) {
+        System.out.println("ajajaja");
+        this.logger.info("Mapping login start work");
+        UserEntity authenticatedUser = authenticationService.authenticate(loginUserDto);
+        this.logger.info("After authentication");
+
+
+        String jwtToken = jwtService.generateToken(authenticatedUser);
+
+        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+        this.logger.info("Mapping login start work");
+
+        return ResponseEntity.ok(loginResponse);
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<UserEntity> register(@RequestBody RegistrationUserDto registerUserDto) {
@@ -39,16 +59,5 @@ public class AuthController {
         return ResponseEntity.ok(registeredUser);
     }
 
-    @PostMapping("/login")
-    public LoginResponse entering(@RequestBody LoginUserDto loginUserDto) {
-        System.out.println("ajajaja");
-        UserEntity authenticatedUser = authenticationService.authenticate(loginUserDto);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
-
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-        this.logger.info("Mapping login start work");
-
-        return loginResponse;
-    }
 }

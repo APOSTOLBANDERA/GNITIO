@@ -5,6 +5,7 @@ import com.example.gnitio.dto.RegistrationUserDto;
 import com.example.gnitio.entity.UserEntity;
 import com.example.gnitio.repository.RoleRepo;
 import com.example.gnitio.repository.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,13 +16,19 @@ import java.util.Collections;
 
 @Service
 public class AuthenticationService {
-    private UserRepo userRepository;
+    private final UserRepo userRepository;
 
     private RoleRepo roleRepository;
     private PasswordEncoder passwordEncoder;
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
+
+    @Autowired
+    public AuthenticationService(AuthenticationManager authenticationManager, UserRepo userRepository) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+    }
 
 
     public UserEntity signup(RegistrationUserDto input) {

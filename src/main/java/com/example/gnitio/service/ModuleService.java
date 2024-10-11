@@ -24,7 +24,7 @@ public class ModuleService {
     private final String uploadDir = "uploads/";
 
     public String uploadFile(Long moduleId, MultipartFile file) throws IOException {
-        // Проверяем, существует ли модуль
+
         Optional<ModuleEntity> moduleOptional = moduleRepo.findById(moduleId);
         if (!moduleOptional.isPresent()) {
             throw new IllegalArgumentException("Модуль не найден");
@@ -32,18 +32,18 @@ public class ModuleService {
 
         ModuleEntity module = moduleOptional.get();
 
-        // Создаем директорию для загрузки файлов, если её нет
+
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Сохраняем файл на сервере
+
         String fileName = file.getOriginalFilename();
         Path filePath = uploadPath.resolve(fileName);
         Files.write(filePath, file.getBytes());
 
-        // Обновляем модуль, добавляем путь к файлу
+
         module.setFilePath(filePath.toString());
         moduleRepo.save(module);
 

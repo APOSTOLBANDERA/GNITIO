@@ -10,7 +10,6 @@ import java.util.List;
 
 @RequestMapping("/courses")
 @RestController
- // Базовый путь для всех операций с курсами
 public class CourseController {
 
     @Autowired
@@ -32,27 +31,27 @@ public class CourseController {
         return ResponseEntity.ok(course);
     }
 
-    // 3. Получение списка всех курсов
+
     @GetMapping
     public ResponseEntity<List<CourseEntity>> getAllCourses() {
         List<CourseEntity> courses = courseService.getAllCourses();
-        return ResponseEntity.ok(courses); // Возвращаем список курсов
+        return ResponseEntity.ok(courses);
     }
 
-    // 4. Обновление курса
-    //@PutMapping("/{id}")
-    //public ResponseEntity<CourseEntity> updateCourse(
-            //@PathVariable Long id,
-            //@RequestBody CourseEntity courseDetails
-    //) {
-        //CourseEntity updatedCourse = courseService.updateCourse(id, courseDetails);
-        //return ResponseEntity.ok(updatedCourse); // Возвращаем обновленный курс
-    //}
 
-    // 5. Удаление курса
-    //@DeleteMapping("/{id}")
-    //public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
-        //courseService.deleteCourse(id);
-        //return ResponseEntity.noContent().build(); // Возвращаем 204 No Content при успешном удалении
-    //}
+    @PutMapping("/{id}")
+    public ResponseEntity<CourseEntity> updateCourse(
+            @PathVariable Long id,
+            @RequestBody CourseEntity courseDetails
+    ) {
+        CourseEntity updatedCourse = courseService.updateCourse(id, courseDetails);
+        return ResponseEntity.ok(updatedCourse);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
+        courseService.deleteCourse(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -11,14 +11,14 @@ public class ModuleEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String title; // Название модуля
+    private String title;
 
     @Column(nullable = false)
-    private String content; // Описание модуля или содержание
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
-    private CourseEntity course; // Связь с курсом
+    private CourseEntity course;
 
     @Column
     private String filePath;

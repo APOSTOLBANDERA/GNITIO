@@ -13,23 +13,23 @@ public class CourseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String title; // Название курса
+    private String title;
 
     @Column(nullable = false)
-    private String mentor; // Ментор курса
+    private String mentor;
 
     @Column(nullable = false)
-    private String description; // Описание курса
+    private String description;
 
     @Column(nullable = false)
-    private int duration; // Продолжительность курса
+    private int duration;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private CourseFormat format; // Формат курса (онлайн, оффлайн, mixed)
+    private CourseFormat format;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ModuleEntity> modules; // Модули курса
+    private List<ModuleEntity> modules;
 
     public Long getId() {
         return id;
