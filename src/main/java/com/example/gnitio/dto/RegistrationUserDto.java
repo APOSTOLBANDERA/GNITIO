@@ -7,8 +7,9 @@ public class RegistrationUserDto {
 
     private String username;
     private String password;
+    private String confirmPassword;
     private String email;
-
+    private String phone;
     private String role;
 
 
@@ -42,5 +43,21 @@ public class RegistrationUserDto {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

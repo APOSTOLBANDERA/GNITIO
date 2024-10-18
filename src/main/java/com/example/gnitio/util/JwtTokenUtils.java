@@ -97,4 +97,8 @@ public class JwtTokenUtils {
     public String getUsernameFromToken(String token) {
         return extractUsername(token);
     }
+
+    public long getExpirationTime() {
+        return 1111111;
+    }
 }

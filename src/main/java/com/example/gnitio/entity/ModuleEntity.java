@@ -1,6 +1,7 @@
 package com.example.gnitio.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "modules")
@@ -20,8 +21,9 @@ public class ModuleEntity {
     @JoinColumn(name = "course_id", nullable = false)
     private CourseEntity course;
 
-    @Column
-    private String filePath;
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LessonEntity> lessons;
+
 
     public Long getId() {
         return id;
@@ -55,11 +57,12 @@ public class ModuleEntity {
         this.course = course;
     }
 
-    public String getFilePath() {
-        return filePath;
+
+    public List<LessonEntity> getLessons() {
+        return lessons;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setLessons(List<LessonEntity> lessons) {
+        this.lessons = lessons;
     }
 }
