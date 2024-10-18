@@ -1,10 +1,12 @@
 package com.example.gnitio.service;
 
+import com.example.gnitio.dto.LessonCreateDto;
 import com.example.gnitio.entity.CourseEntity;
 import com.example.gnitio.entity.LessonEntity;
 import com.example.gnitio.entity.ModuleEntity;
 import com.example.gnitio.repository.LessonRepo;
 import com.example.gnitio.repository.ModuleRepo;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,10 +25,16 @@ public class LessonService {
         this.moduleRepo = moduleRepo;
     }
 
-    public LessonEntity addLessonToModule(Long moduleId, LessonEntity lesson) {
+    public LessonEntity addLessonToModule(Long moduleId, LessonCreateDto lessonCreateDto) {
         ModuleEntity module = moduleRepo.findById(moduleId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Module not found"));
+
+        LessonEntity lesson = new LessonEntity();
+        lesson.setTitle(lessonCreateDto.getTitle());
+        lesson.setType(lessonCreateDto.getType());
+        lesson.setContent(lessonCreateDto.getContent());
         lesson.setModule(module);
+
         return lessonRepo.save(lesson);
     }
 

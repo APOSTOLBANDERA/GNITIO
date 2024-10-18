@@ -1,6 +1,10 @@
 package com.example.gnitio.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+
+import java.sql.Types;
 
 @Entity
 @Table(name = "lessons")
@@ -21,7 +25,8 @@ public class LessonEntity {
 
     // Поле для хранения файла в виде бинарных данных
     @Lob
-    @Column(name = "file_data", columnDefinition = "LONGBLOB")
+    @JdbcTypeCode(Types.BINARY)
+    @Column(name = "file_data", columnDefinition = "BYTEA")
     private byte[] fileData;
 
     // Имя файла для справки

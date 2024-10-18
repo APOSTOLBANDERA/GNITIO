@@ -1,5 +1,6 @@
 package com.example.gnitio.controller;
 
+import com.example.gnitio.dto.LessonCreateDto;
 import com.example.gnitio.entity.LessonEntity;
 import com.example.gnitio.entity.ModuleEntity;
 import com.example.gnitio.service.LessonService;
@@ -23,7 +24,7 @@ public class LessonController {
     @PostMapping("/{moduleId}/add")
     public ResponseEntity<LessonEntity> addLessonToModule(
             @PathVariable Long moduleId,
-            @RequestBody LessonEntity lesson) {
+            @RequestBody LessonCreateDto lesson) {
         LessonEntity createdLesson = lessonService.addLessonToModule(moduleId, lesson);
         return ResponseEntity.ok(createdLesson);
     }
