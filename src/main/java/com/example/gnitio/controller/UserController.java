@@ -43,12 +43,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/createUser")
-    public void CreateSomething() throws UserAlreadyExistException{
-        UserEntity userEntity = new UserEntity("DENIS3", passwordEncoder.encode("DENIS3"), "DENIS3@gmail.com");
-        userService.createNewUser(userEntity);
-        logger.info("LOX YA");
-    }
+
 
 
 
