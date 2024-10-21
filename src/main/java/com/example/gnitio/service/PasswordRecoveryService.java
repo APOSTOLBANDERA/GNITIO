@@ -15,12 +15,14 @@ public class PasswordRecoveryService {
 
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
-    private final Map<String, String> recoveryCodes = new HashMap<>(); // Коды восстановления для каждого email
+    private final EmailService emailService;
+    private final Map<String, String> recoveryCodes = new HashMap<>();
 
     @Autowired
-    public PasswordRecoveryService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+    public PasswordRecoveryService(UserRepo userRepo, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService; // Добавлено
     }
 
     // Отправка кода восстановления на email
@@ -30,9 +32,14 @@ public class PasswordRecoveryService {
         // Генерация случайного кода
         String code = String.valueOf(new Random().nextInt(999999));
 
-        // Здесь можно добавить логику для отправки email с кодом восстановления
-
+        // Сохранение кода в памяти для проверки
         recoveryCodes.put(email, code);
+
+        // Отправка email с кодом
+        String subject = "Password Recovery Code";
+        String text = "Your recovery code is: " + code;
+
+        emailService.sendEmail(email, subject, text);
     }
 
     // Проверка кода восстановления
